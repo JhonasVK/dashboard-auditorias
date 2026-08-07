@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Dashboard Auditorías de Terreno</title>
+  <meta name="description" content="Dashboard interactivo de indicadores para auditorías de terreno. Visualiza cumplimiento, hallazgos y evolución histórica por zona y auditor." />
+
+  <!-- Estilos -->
+  <link rel="stylesheet" href="css/style.css" />
+
+  <!-- Toast estilos inline para no requerir otro archivo -->
+  <style>
+    .toast {
+      position: fixed; bottom: 24px; right: 24px;
+      background: #2D3748; color: #fff;
+      padding: 12px 20px; border-radius: 10px;
+      font-size: 0.85rem; font-weight: 500;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.2);
+      opacity: 0; transform: translateY(12px);
+      transition: all 0.3s ease; z-index: 9999;
+      max-width: 380px;
+    }
+    .toast.toast-visible { opacity: 1; transform: translateY(0); }
+    .toast.toast-error { background: #C0392B; }
+  </style>
+
+  <!-- Librerías externas (CDN) -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
+  <script src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js"></script>
+</head>
+<body>
+
+  <!-- ════════════════════════════════════════════════
+       HEADER
+       ════════════════════════════════════════════════ -->
+  <header class="header">
+    <div class="header-brand">
+      <img
+        src="logo/Logotipo%20Cobra.png"
+        alt="Logo Cobra"
+        style="height:46px; width:auto; object-fit:contain; border-radius:6px; mix-blend-mode: multiply;"
+      />
+      <div>
+        <h1>Dashboard Auditorías de Terreno</h1>
+        <p>Indicadores de cumplimiento y hallazgos</p>
+      </div>
+    </div>
+    <div class="header-actions">
+      <span class="badge-fecha" id="fecha-actual">Cargando...</span>
+      <button onclick="window.print()" style="background:rgba(255,255,255,0.2); border:1px solid rgba(255,255,255,0.4); color:#fff; padding:6px 14px; border-radius:20px; font-size:0.85rem; font-weight:600; cursor:pointer; transition:all 0.2s ease; display:flex; align-items:center; gap:6px;">
+        📄 Exportar a PDF
+      </button>
+      <style>
+        @media print {
+          .header-actions, .filtros-bar { display: none !important; }
+          body { background: #fff !important; }
+          .main-content { padding: 0 !important; margin: 0 !important; }
+          .chart-card { border: none !important; box-shadow: none !important; margin-bottom: 20px; }
+          .kpi-grid { gap: 10px !important; }
+          /* Forzar impresión de fondos */
+          * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
+        }
+      </style>
+    </div>
+  </header>
+
+  <!-- ════════════════════════════════════════════════
+       CONTENIDO PRINCIPAL
+       ════════════════════════════════════════════════ -->
+  <main class="main-content">
+
+    <!-- FILTROS -->
+    <div class="filtros-bar">
+      <label>🔍 Filtros:</label>
+
+      <select id="filtro-mes" onchange="aplicarFiltros()">
+        <option value="">Todos los meses</option>
+      </select>
+
+      <select id="filtro-zona" onchange="aplicarFiltros()">
+        <option value="">Todas las zonas</option>
+      </select>
+
+      <select id="filtro-auditor" onchange="aplicarFiltros()">
+        <option value="">Todos los auditores</option>
+      </select>
+
+      <select id="filtro-tipo" onchange="aplicarFiltros()">
+        <option value="">Todos los tipos</option>
+      </select>
+
+      <input
+        type="text"
+        id="filtro-texto"
+        placeholder="Buscar técnico, dirección..."
+        oninput="aplicarFiltros()"
+      />
+
+      <button class="btn-limpiar" onclick="limpiarFiltros()">✕ Limpiar</button>
+    </div>
+
+    <!-- KPI CARDS -->
+    <section class="kpi-grid" aria-label="Indicadores clave">
+
+      <div class="kpi-card" id="kpi-total">
+        <div class="kpi-header">
+          <div class="kpi-icon">📊</div>
+          <span class="kpi-label">Total<br>Auditorías</span>
+        </div>
+        <div class="kpi-value">—</div>
+        <div class="kpi-sub">registros</div>
+      </div>
+
+      <div class="kpi-card" id="kpi-cumplimiento">
+        <div class="kpi-header">
+          <div class="kpi-icon">✅</div>
+          <span class="kpi-label">Cumplimiento<br>Promedio</span>
+        </div>
+        <div class="kpi-value">—</div>
+        <div class="kpi-sub">promedio</div>
+      </div>
+
+      <div class="kpi-card verde" id="kpi-cierre">
+        <div class="kpi-header">
+          <div class="kpi-icon">🤝</div>
+          <span class="kpi-label">Procesos<br>Cerrados</span>
+        </div>
+        <div class="kpi-value">—</div>
+        <div class="kpi-sub">con el técnico</div>
+      </div>
+
+      <div class="kpi-card naranja" id="kpi-supervisores">
+        <div class="kpi-header">
+          <div class="kpi-icon">👥</div>
+          <span class="kpi-label">Auditorías por<br>Supervisor</span>
+        </div>
+        <div class="kpi-value" id="val-supervisores" style="font-size: 1.1rem; line-height: 1.6; font-weight: 600; text-align: right; margin-top: 8px;">
+          —
+        </div>
+      </div>
+
+    </section>
+
+
+
+    <!-- GRÁFICAS -->
+    <section class="charts-grid-full" aria-label="Gráficas de indicadores">
+
+      <div class="chart-card">
+        <div class="chart-header">
+          <div class="chart-title"><span class="icon">📊</span> Nota por Técnico</div>
+          <select id="filtro-chart-tecnicos" onchange="renderChartBarras()" style="padding: 4px 8px; border-radius: 6px; border: 1px solid var(--gris-200); font-size: 0.75rem; outline: none;">
+            <option value="">Todos los Supervisores</option>
+            <option value="DANILO">Danilo Ojeda</option>
+            <option value="ROLANDO">Rolando Montoya</option>
+            <option value="JULIO">Julio Cabrera</option>
+          </select>
+        </div>
+        <div class="chart-container">
+          <canvas id="chart-barras"></canvas>
+        </div>
+      </div>
+
+    </section>
+
+    <!-- LÍNEAS: Evolución mensual -->
+    <section class="charts-grid-full">
+      <div class="chart-card">
+        <div class="chart-header">
+          <div class="chart-title">
+            <span class="icon">📈</span>
+            Evolución Mensual del Cumplimiento
+          </div>
+          <span class="chart-badge">Tendencia</span>
+        </div>
+        <div class="chart-container">
+          <canvas id="chart-lineas"></canvas>
+        </div>
+      </div>
+    </section>
+
+    <!-- EVOLUCIÓN SUPERVISORES -->
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; padding: 0 4px;">
+      <h2 style="font-size: 1.05rem; color: var(--gris-800); display: flex; align-items: center; gap: 8px;">
+        <span class="icon">👥</span> Evolución por Supervisor
+      </h2>
+      <select id="filtro-tiempo" onchange="renderizarGraficas()" style="padding: 6px 12px; border-radius: 8px; border: 1.5px solid var(--gris-200); font-size: 0.8rem; outline: none; cursor: pointer;">
+        <option value="mensual">Vista Mensual</option>
+        <option value="semanal">Vista Semanal</option>
+      </select>
+    </div>
+
+    <section class="kpi-grid" style="grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); margin-bottom: 30px;" aria-label="Evolución Supervisores">
+      
+      <div class="chart-card" style="padding: 16px;">
+        <div class="chart-header" style="margin-bottom: 12px;">
+          <div class="chart-title" style="font-size: 0.85rem;"><span class="icon" style="color: #0277BD;">🟢</span> DANILO OJEDA</div>
+        </div>
+        <div class="chart-container"><canvas id="chart-danilo"></canvas></div>
+      </div>
+
+      <div class="chart-card" style="padding: 16px;">
+        <div class="chart-header" style="margin-bottom: 12px;">
+          <div class="chart-title" style="font-size: 0.85rem;"><span class="icon" style="color: #F39C12;">🟡</span> ROLANDO MOTOYA</div>
+        </div>
+        <div class="chart-container"><canvas id="chart-rolando"></canvas></div>
+      </div>
+
+      <div class="chart-card" style="padding: 16px;">
+        <div class="chart-header" style="margin-bottom: 12px;">
+          <div class="chart-title" style="font-size: 0.85rem;"><span class="icon" style="color: #E74C3C;">🔴</span> JULIO CABRERA</div>
+        </div>
+        <div class="chart-container"><canvas id="chart-julio"></canvas></div>
+      </div>
+
+    </section>
+
+    <!-- TABLA DE DATOS -->
+    <section class="tabla-card" aria-label="Detalle de auditorías">
+      <div class="tabla-header" style="display: flex; justify-content: space-between; align-items: center;">
+        <div class="tabla-title">
+          📋 Detalle de Auditorías
+        </div>
+        <div style="display: flex; gap: 12px; align-items: center;">
+          <span class="tabla-count" id="tabla-count">0 registros</span>
+          <button onclick="exportarExcel()" style="background:#26C281; border:none; color:#fff; padding:6px 12px; border-radius:6px; font-size:0.85rem; font-weight:600; cursor:pointer; box-shadow: 0 2px 4px rgba(38,194,129,0.2);">📊 Exportar Excel</button>
+        </div>
+      </div>
+      <div class="table-responsive">
+        <table id="tabla-datos">
+          <thead>
+            <tr>
+              <th>Fecha</th>
+              <th>N° Petición</th>
+              <th>Técnico</th>
+              <th>Supervisor</th>
+              <th>Dirección</th>
+              <th>Nota</th>
+              <th>Observaciones</th>
+              <th>Mesa de Trabajo</th>
+              <th>Cierre Proceso</th>
+              <th>Obs. Cierre</th>
+            </tr>
+          </thead>
+          <tbody id="tabla-body">
+            <!-- JS -->
+          </tbody>
+        </table>
+      </div>
+    </section>
+    <!-- RANKING TÉCNICOS (TOP 3 & BOTTOM 3) -->
+    <section class="kpi-grid" style="margin-top: 30px; margin-bottom: 40px; grid-template-columns: repeat(auto-fit, minmax(400px, 1fr)); gap: 20px;" aria-label="Ranking de Técnicos">
+      
+      <!-- TOP 3 -->
+      <div class="chart-card" style="padding: 20px; border-top: 4px solid #26C281;">
+        <div class="chart-header" style="margin-bottom: 16px; display: flex; align-items: center; justify-content: space-between;">
+          <div class="chart-title" style="font-size: 1.1rem; color: #1E293B;">
+            <span class="icon" style="color: #26C281; font-size: 1.4rem;">🏆</span> Top 3 (Mejor Desempeño)
+          </div>
+        </div>
+        <div id="ranking-top3" style="display: flex; flex-direction: column; gap: 12px;">
+          <!-- JS -->
+        </div>
+      </div>
+
+      <!-- BOTTOM 3 -->
+      <div class="chart-card" style="padding: 20px; border-top: 4px solid #E74C3C;">
+        <div class="chart-header" style="margin-bottom: 16px; display: flex; align-items: center; justify-content: space-between;">
+          <div class="chart-title" style="font-size: 1.1rem; color: #1E293B;">
+            <span class="icon" style="color: #E74C3C; font-size: 1.4rem;">⚠️</span> Bottom 3 (Oportunidad de Mejora)
+          </div>
+        </div>
+        <div id="ranking-bottom3" style="display: flex; flex-direction: column; gap: 12px;">
+          <!-- JS -->
+        </div>
+      </div>
+
+    </section>
+
+  </main>
+
+
+
+  <!-- SCRIPTS -->
+  <footer class="footer">
+    Dashboard Auditorías de Terreno — Actualizado: <span id="fecha-actual-footer"></span>
+    <script>
+      document.getElementById('fecha-actual-footer').textContent =
+        new Date().toLocaleDateString('es-CL');
+    </script>
+  </footer>
+
+  <!-- Script principal -->
+  <script src="js/dashboard.js"></script>
+
+</body>
+</html>
