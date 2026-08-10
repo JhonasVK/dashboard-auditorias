@@ -288,6 +288,18 @@ body {
   z-index: 1;
 }
 
+.kpi-trend {
+  font-size: 0.75rem;
+  font-weight: 600;
+  margin-top: 6px;
+  position: relative;
+  z-index: 1;
+}
+
+.kpi-trend .subida   { color: #4F7D64; }
+.kpi-trend .bajada   { color: #A34A3F; }
+.kpi-trend .neutro   { color: var(--gris-300); font-weight: 400; }
+
 /* ============================================================
    GRID DE GRÁFICAS
    ============================================================ */
@@ -483,6 +495,47 @@ tbody td {
   color: var(--gris-600);
   min-width: 36px;
   text-align: right;
+}
+
+/* Paginación de tabla */
+.tabla-paginacion {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  padding: 14px 22px;
+  border-top: 1px solid var(--gris-200);
+}
+
+.pag-btn {
+  background: var(--gris-50);
+  border: 1.5px solid var(--gris-200);
+  color: var(--gris-600);
+  padding: 6px 14px;
+  border-radius: var(--radio-sm);
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: var(--transicion);
+  font-family: 'Inter', sans-serif;
+}
+
+.pag-btn:hover:not(:disabled) {
+  background: var(--celeste-100);
+  border-color: var(--celeste-400);
+  color: var(--celeste-700);
+}
+
+.pag-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.pag-info {
+  font-size: 0.8rem;
+  color: var(--gris-600);
+  font-weight: 500;
+  white-space: nowrap;
 }
 
 /* ============================================================

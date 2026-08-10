@@ -27,11 +27,14 @@ const DATOS_EJEMPLO = [
 
 // ─── ESTADO GLOBAL ────────────────────────────────────────────
 let datosOriginales = [...DATOS_EJEMPLO];
+let datosFiltrados  = [...DATOS_EJEMPLO];
 let chartDanilo     = null;
 let chartRolando    = null;
 let chartJulio      = null;
 let chartBarras     = null;
 let chartLineas     = null;
+let paginaActual    = 1;
+const FILAS_POR_PAGINA = 15;
 // ─── INICIALIZACIÓN ───────────────────────────────────────────
 document.addEventListener('DOMContentLoaded', () => {
   actualizarFecha();
@@ -234,6 +237,7 @@ function aplicarFiltros() {
     return true;
   });
 
+  paginaActual = 1;
   renderizar();
 }
 function limpiarFiltros() {
@@ -244,6 +248,7 @@ function limpiarFiltros() {
   const txt = document.getElementById('filtro-texto');
   if (txt) txt.value = '';
   datosFiltrados = [...datosOriginales];
+  paginaActual = 1;
   renderizar();
 }
 
@@ -259,11 +264,13 @@ function renderizar() {
 function renderizarKPIs() {
   const total      = datosFiltrados.length;
   const cierres    = datosFiltrados.filter(d => d.cierreProceso && d.cierreProceso.toLowerCase().includes('si')).length;
-  const notaProm   = total ? (datosFiltrados.reduce((s,d) => s + (d.nota||0), 0) / total).toFixed(1) : 0;
+  const notaProm   = total ? (datosFiltrados.reduce((s,d) => s + (d.nota||0), 0) / total) : 0;
 
-  setKPI('kpi-total',       total,              'auditorías registradas');
-  setKPI('kpi-cumplimiento', notaProm + ' / 10', 'nota promedio técnicos');
-  setKPI('kpi-cierre',      cierres,             'cierres con técnico');
+  setKPI('kpi-total',       total,                        'auditorías registradas');
+  setKPI('kpi-cumplimiento', notaProm.toFixed(1) + ' / 10', 'nota promedio técnicos');
+  setKPI('kpi-cierre',      cierres,                       'cierres con técnico');
+
+  renderizarTendenciaMensual(total, notaProm);
 
   const danilo = datosFiltrados.filter(d => d.auditor && d.auditor.toUpperCase().includes('DANILO')).length;
   const rolando = datosFiltrados.filter(d => d.auditor && d.auditor.toUpperCase().includes('ROLANDO')).length;
@@ -279,6 +286,71 @@ function renderizarKPIs() {
   }
 }
 
+
+// ─── TENDENCIA vs. MES ANTERIOR ───────────────────────────────
+function mesAnteriorStr(mesStr) {
+  const [y, m] = mesStr.split('-').map(Number);
+  const d = new Date(y, m - 2, 1); // m es 1-indexado; -2 retrocede un mes en base 0
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
+}
+
+function filtrarPorMes(mesStr) {
+  const supervisor = document.getElementById('filtro-zona')?.value    || '';
+  const tecnico    = document.getElementById('filtro-auditor')?.value || '';
+  const tipo       = document.getElementById('filtro-tipo')?.value    || '';
+  const texto      = (document.getElementById('filtro-texto')?.value  || '').toLowerCase();
+
+  return datosOriginales.filter(d => {
+    if (!d.fecha || !d.fecha.startsWith(mesStr)) return false;
+    if (supervisor && d.auditor  !== supervisor) return false;
+    if (tecnico    && d.tecnico  !== tecnico)    return false;
+    if (tipo       && d.tipo     !== tipo)       return false;
+    if (texto      && !`${d.tecnico} ${d.auditor} ${d.direccion} ${d.peticion}`.toLowerCase().includes(texto)) return false;
+    return true;
+  });
+}
+
+function renderizarTendenciaMensual(totalActual, notaPromActual) {
+  const trendTotalEl = document.getElementById('kpi-total-trend');
+  const trendNotaEl  = document.getElementById('kpi-cumplimiento-trend');
+  if (!trendTotalEl && !trendNotaEl) return;
+
+  const mesFiltro = document.getElementById('filtro-mes')?.value;
+  const mesesConDatos = [...new Set(datosOriginales.map(d => d.fecha).filter(Boolean).map(f => f.substring(0, 7)))].sort();
+  const mesRef = mesFiltro || mesesConDatos[mesesConDatos.length - 1];
+
+  if (!mesRef) {
+    if (trendTotalEl) trendTotalEl.innerHTML = '';
+    if (trendNotaEl) trendNotaEl.innerHTML = '';
+    return;
+  }
+
+  const filasMesAnterior = filtrarPorMes(mesAnteriorStr(mesRef));
+
+  if (filasMesAnterior.length === 0) {
+    if (trendTotalEl) trendTotalEl.innerHTML = `<span class="neutro">Sin datos del mes anterior</span>`;
+    if (trendNotaEl) trendNotaEl.innerHTML = `<span class="neutro">Sin datos del mes anterior</span>`;
+    return;
+  }
+
+  if (trendTotalEl) {
+    const deltaTotal = totalActual - filasMesAnterior.length;
+    trendTotalEl.innerHTML = formatearTendencia(deltaTotal, `${Math.abs(deltaTotal)} vs. mes anterior`);
+  }
+
+  if (trendNotaEl) {
+    const notaMesAnterior = filasMesAnterior.reduce((s, d) => s + (d.nota || 0), 0) / filasMesAnterior.length;
+    const deltaNota = notaPromActual - notaMesAnterior;
+    trendNotaEl.innerHTML = formatearTendencia(deltaNota, `${Math.abs(deltaNota).toFixed(1)} vs. mes anterior`);
+  }
+}
+
+function formatearTendencia(delta, texto) {
+  if (Math.abs(delta) < 0.05) return `<span class="neutro">→ Igual que el mes anterior</span>`;
+  const cls = delta > 0 ? 'subida' : 'bajada';
+  const flecha = delta > 0 ? '▲' : '▼';
+  return `<span class="${cls}">${flecha} ${texto}</span>`;
+}
 
 function setKPI(id, valor, sub) {
   const el = document.getElementById(id);
@@ -545,6 +617,7 @@ function renderChartSupervisor(nombre, chartRef, canvasId, color) {
 function renderizarTabla() {
   const tbody = document.getElementById('tabla-body');
   const countEl = document.getElementById('tabla-count');
+  const paginacionEl = document.getElementById('tabla-paginacion');
   if (!tbody) return;
 
   if (countEl) countEl.textContent = `${datosFiltrados.length} registros`;
@@ -558,12 +631,19 @@ function renderizarTabla() {
           <p>No hay auditorías que coincidan con los filtros seleccionados.</p>
         </div>
       </td></tr>`;
+    if (paginacionEl) paginacionEl.innerHTML = '';
     return;
   }
 
   const ordenados = [...datosFiltrados].sort((a,b) => (b.fecha||'').localeCompare(a.fecha||''));
 
-  tbody.innerHTML = ordenados.map(d => {
+  const totalPaginas = Math.max(1, Math.ceil(ordenados.length / FILAS_POR_PAGINA));
+  if (paginaActual > totalPaginas) paginaActual = totalPaginas;
+  if (paginaActual < 1) paginaActual = 1;
+  const inicio = (paginaActual - 1) * FILAS_POR_PAGINA;
+  const pagina = ordenados.slice(inicio, inicio + FILAS_POR_PAGINA);
+
+  tbody.innerHTML = pagina.map(d => {
     const nota   = d.nota || 0;
     const pct    = Math.min(Math.max(d.cumplimiento, 0), 100);
     const cls    = pct >= 85 ? '' : pct >= 60 ? 'medio' : 'bajo';
@@ -596,6 +676,23 @@ function renderizarTabla() {
       <td style="font-size:0.75rem;color:#5A6678;max-width:200px">${escHtml(d.obsCierre || '—')}</td>
     </tr>`;
   }).join('');
+
+  if (paginacionEl) {
+    if (totalPaginas <= 1) {
+      paginacionEl.innerHTML = '';
+    } else {
+      paginacionEl.innerHTML = `
+        <button class="pag-btn" onclick="cambiarPagina(${paginaActual - 1})" ${paginaActual === 1 ? 'disabled' : ''}>‹ Anterior</button>
+        <span class="pag-info">Página ${paginaActual} de ${totalPaginas}</span>
+        <button class="pag-btn" onclick="cambiarPagina(${paginaActual + 1})" ${paginaActual === totalPaginas ? 'disabled' : ''}>Siguiente ›</button>
+      `;
+    }
+  }
+}
+
+function cambiarPagina(n) {
+  paginaActual = n;
+  renderizarTabla();
 }
 
 // ─── UTILIDADES ──────────────────────────────────────────────
