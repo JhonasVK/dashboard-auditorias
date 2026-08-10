@@ -22,7 +22,7 @@
       max-width: 380px;
     }
     .toast.toast-visible { opacity: 1; transform: translateY(0); }
-    .toast.toast-error { background: #C0392B; }
+    .toast.toast-error { background: #A34A3F; }
   </style>
 
   <!-- Librerías externas (CDN) -->
@@ -197,21 +197,21 @@
       
       <div class="chart-card" style="padding: 16px;">
         <div class="chart-header" style="margin-bottom: 12px;">
-          <div class="chart-title" style="font-size: 0.85rem;"><span class="icon" style="color: #0277BD;">🟢</span> DANILO OJEDA</div>
+          <div class="chart-title" style="font-size: 0.85rem;"><span class="icon" style="color: #3B5069;">🟢</span> DANILO OJEDA</div>
         </div>
         <div class="chart-container"><canvas id="chart-danilo"></canvas></div>
       </div>
 
       <div class="chart-card" style="padding: 16px;">
         <div class="chart-header" style="margin-bottom: 12px;">
-          <div class="chart-title" style="font-size: 0.85rem;"><span class="icon" style="color: #F39C12;">🟡</span> ROLANDO MOTOYA</div>
+          <div class="chart-title" style="font-size: 0.85rem;"><span class="icon" style="color: #96702F;">🟡</span> ROLANDO MOTOYA</div>
         </div>
         <div class="chart-container"><canvas id="chart-rolando"></canvas></div>
       </div>
 
       <div class="chart-card" style="padding: 16px;">
         <div class="chart-header" style="margin-bottom: 12px;">
-          <div class="chart-title" style="font-size: 0.85rem;"><span class="icon" style="color: #E74C3C;">🔴</span> JULIO CABRERA</div>
+          <div class="chart-title" style="font-size: 0.85rem;"><span class="icon" style="color: #A34A3F;">🔴</span> JULIO CABRERA</div>
         </div>
         <div class="chart-container"><canvas id="chart-julio"></canvas></div>
       </div>
@@ -226,7 +226,7 @@
         </div>
         <div style="display: flex; gap: 12px; align-items: center;">
           <span class="tabla-count" id="tabla-count">0 registros</span>
-          <button onclick="exportarExcel()" style="background:#26C281; border:none; color:#fff; padding:6px 12px; border-radius:6px; font-size:0.85rem; font-weight:600; cursor:pointer; box-shadow: 0 2px 4px rgba(38,194,129,0.2);">📊 Exportar Excel</button>
+          <button onclick="exportarExcel()" style="background:#6B9C82; border:none; color:#fff; padding:6px 12px; border-radius:6px; font-size:0.85rem; font-weight:600; cursor:pointer; box-shadow: 0 2px 4px rgba(107,156,130,0.25);">📊 Exportar Excel</button>
         </div>
       </div>
       <div class="table-responsive">
@@ -256,10 +256,10 @@
     <section class="kpi-grid" style="margin-top: 30px; margin-bottom: 40px; grid-template-columns: repeat(auto-fit, minmax(400px, 1fr)); gap: 20px;" aria-label="Ranking de Técnicos">
       
       <!-- TOP 3 -->
-      <div class="chart-card" style="padding: 20px; border-top: 4px solid #26C281;">
+      <div class="chart-card" style="padding: 20px; border-top: 4px solid #6B9C82;">
         <div class="chart-header" style="margin-bottom: 16px; display: flex; align-items: center; justify-content: space-between;">
-          <div class="chart-title" style="font-size: 1.1rem; color: #1E293B;">
-            <span class="icon" style="color: #26C281; font-size: 1.4rem;">🏆</span> Top 3 (Mejor Desempeño)
+          <div class="chart-title" style="font-size: 1.1rem; color: var(--gris-800);">
+            <span class="icon" style="color: #4F7D64; font-size: 1.4rem;">🏆</span> Top 3 (Mejor Desempeño)
           </div>
         </div>
         <div id="ranking-top3" style="display: flex; flex-direction: column; gap: 12px;">
@@ -268,10 +268,10 @@
       </div>
 
       <!-- BOTTOM 3 -->
-      <div class="chart-card" style="padding: 20px; border-top: 4px solid #E74C3C;">
+      <div class="chart-card" style="padding: 20px; border-top: 4px solid #BC6B60;">
         <div class="chart-header" style="margin-bottom: 16px; display: flex; align-items: center; justify-content: space-between;">
-          <div class="chart-title" style="font-size: 1.1rem; color: #1E293B;">
-            <span class="icon" style="color: #E74C3C; font-size: 1.4rem;">⚠️</span> Bottom 3 (Oportunidad de Mejora)
+          <div class="chart-title" style="font-size: 1.1rem; color: var(--gris-800);">
+            <span class="icon" style="color: #A34A3F; font-size: 1.4rem;">⚠️</span> Bottom 3 (Oportunidad de Mejora)
           </div>
         </div>
         <div id="ranking-bottom3" style="display: flex; flex-direction: column; gap: 12px;">
