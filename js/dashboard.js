@@ -271,9 +271,9 @@ function renderizarKPIs() {
   const superEl = document.getElementById('val-supervisores');
   if (superEl) {
     superEl.innerHTML = `
-      <div style="display:flex; justify-content:space-between; color: #0277BD; margin-bottom: 2px;"><span>Danilo:</span> <span>${danilo}</span></div>
-      <div style="display:flex; justify-content:space-between; color: #F39C12; margin-bottom: 2px;"><span>Rolando:</span> <span>${rolando}</span></div>
-      <div style="display:flex; justify-content:space-between; color: #E74C3C;"><span>Julio:</span> <span>${julio}</span></div>
+      <div style="display:flex; justify-content:space-between; color: #3B5069; margin-bottom: 2px;"><span>Danilo:</span> <span>${danilo}</span></div>
+      <div style="display:flex; justify-content:space-between; color: #96702F; margin-bottom: 2px;"><span>Rolando:</span> <span>${rolando}</span></div>
+      <div style="display:flex; justify-content:space-between; color: #A34A3F;"><span>Julio:</span> <span>${julio}</span></div>
     `;
   }
 }
@@ -295,8 +295,8 @@ function renderizarGraficas() {
   renderChartsSupervisores();
 }
 
-const CELESTE_PALETTE = ['#29B6F6','#03A9F4','#0288D1','#4FC3F7','#81D4FA','#B3E5FC','#0277BD'];
-const ESTADO_COLORS   = { aprobado:'#26C281', parcial:'#F39C12', rechazado:'#E74C3C' };
+const CELESTE_PALETTE = ['#7C93AB','#5D7A9B','#4A6483','#8FA6BC','#A9BDCE','#C6D3E0','#3B5069'];
+const ESTADO_COLORS   = { aprobado:'#6B9C82', parcial:'#B08A4E', rechazado:'#B25950' };
 
 function renderChartBarras() {
   const ctx = document.getElementById('chart-barras')?.getContext('2d');
@@ -338,9 +338,9 @@ function renderChartBarras() {
   
   const backgroundColors = list.map(item => {
     const aud = item.auditor.toUpperCase();
-    if (aud.includes('DANILO')) return '#0277BD'; // Azul
-    if (aud.includes('ROLANDO')) return '#F39C12'; // Naranja
-    if (aud.includes('JULIO')) return '#E74C3C'; // Rojo
+    if (aud.includes('DANILO')) return '#3B5069'; // Azul
+    if (aud.includes('ROLANDO')) return '#96702F'; // Naranja
+    if (aud.includes('JULIO')) return '#A34A3F'; // Rojo
     return '#B0BBC9'; // Gris default
   });
 
@@ -398,9 +398,9 @@ function renderChartLineas() {
   
   // Configuración de los supervisores
   const superConfigs = [
-    { key: 'DANILO', label: 'Danilo Ojeda', color: '#0277BD' },
-    { key: 'ROLANDO', label: 'Rolando Montoya', color: '#F39C12' },
-    { key: 'JULIO', label: 'Julio Cabrera', color: '#E74C3C' }
+    { key: 'DANILO', label: 'Danilo Ojeda', color: '#3B5069' },
+    { key: 'ROLANDO', label: 'Rolando Montoya', color: '#96702F' },
+    { key: 'JULIO', label: 'Julio Cabrera', color: '#A34A3F' }
   ];
 
   const datasets = superConfigs.map(conf => {
@@ -468,9 +468,9 @@ function getWeekNumber(dStr) {
 }
 
 function renderChartsSupervisores() {
-  chartDanilo = renderChartSupervisor('DANILO', chartDanilo, 'chart-danilo', '#0277BD');
-  chartRolando = renderChartSupervisor('ROLANDO', chartRolando, 'chart-rolando', '#F39C12');
-  chartJulio = renderChartSupervisor('JULIO', chartJulio, 'chart-julio', '#E74C3C');
+  chartDanilo = renderChartSupervisor('DANILO', chartDanilo, 'chart-danilo', '#3B5069');
+  chartRolando = renderChartSupervisor('ROLANDO', chartRolando, 'chart-rolando', '#96702F');
+  chartJulio = renderChartSupervisor('JULIO', chartJulio, 'chart-julio', '#A34A3F');
 }
 
 function renderChartSupervisor(nombre, chartRef, canvasId, color) {
@@ -651,8 +651,8 @@ function renderizarRanking() {
   function generarHtml(tecnicos, type) {
     if (tecnicos.length === 0) return `<div style="color:var(--gris-400);font-size:0.9rem;font-style:italic;">Sin datos suficientes</div>`;
     return tecnicos.map((t, idx) => {
-      const colorCls = type === 'top' ? 'color:#26C281;' : 'color:#E74C3C;';
-      const bgCls = type === 'top' ? 'background:#eafaf1;' : 'background:#fdedec;';
+      const colorCls = type === 'top' ? 'color:#4F7D64;' : 'color:#A34A3F;';
+      const bgCls = type === 'top' ? 'background:#E8F1EC;' : 'background:#F5E8E6;';
       return `
         <div style="display: flex; align-items: center; justify-content: space-between; padding: 12px; border: 1px solid var(--gris-200); border-radius: 8px; ${bgCls}">
           <div style="display: flex; align-items: center; gap: 12px;">

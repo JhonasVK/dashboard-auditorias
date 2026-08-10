@@ -7,12 +7,12 @@
 
 /* ---- Variables de Color ---- */
 :root {
-  --celeste-100: #E1F5FE;
-  --celeste-200: #B3E5FC;
-  --celeste-400: #29B6F6;
-  --celeste-500: #03A9F4;
-  --celeste-600: #0288D1;
-  --celeste-700: #0277BD;
+  --celeste-100: #E4EAF0;
+  --celeste-200: #C6D3E0;
+  --celeste-400: #7C93AB;
+  --celeste-500: #5D7A9B;
+  --celeste-600: #4A6483;
+  --celeste-700: #3B5069;
 
   --gris-50:  #F7F9FC;
   --gris-100: #ECEFF4;
@@ -23,8 +23,8 @@
   --gris-900: #1A202C;
 
   --blanco: #FFFFFF;
-  --sombra: 0 2px 16px rgba(3, 169, 244, 0.08), 0 1px 4px rgba(0,0,0,0.07);
-  --sombra-hover: 0 6px 28px rgba(3, 169, 244, 0.18), 0 2px 8px rgba(0,0,0,0.1);
+  --sombra: 0 2px 16px rgba(44, 62, 80, 0.06), 0 1px 4px rgba(0,0,0,0.07);
+  --sombra-hover: 0 6px 28px rgba(44, 62, 80, 0.14), 0 2px 8px rgba(0,0,0,0.1);
   --radio: 14px;
   --radio-sm: 8px;
   --transicion: all 0.25s ease;
@@ -44,7 +44,7 @@ body {
    HEADER / BARRA SUPERIOR
    ============================================================ */
 .header {
-  background: linear-gradient(90deg, #ffffff 0%, #1e3a8a 100%);
+  background: linear-gradient(90deg, #ffffff 0%, #2C3E50 100%);
   color: var(--gris-900);
   padding: 0 32px;
   height: 70px;
@@ -67,7 +67,7 @@ body {
   font-size: 1.15rem;
   font-weight: 700;
   letter-spacing: -0.3px;
-  color: #1e3a8a; /* Azul rey oscuro para el título sobre fondo blanco */
+  color: #2C3E50; /* Azul grisáceo oscuro para el título sobre fondo blanco */
 }
 
 .header-brand p {
@@ -228,12 +228,12 @@ body {
   box-shadow: var(--sombra-hover);
 }
 
-.kpi-card.verde { border-left-color: #26C281; }
-.kpi-card.verde .kpi-icon { background: #E8F8F1; color: #26C281; }
-.kpi-card.rojo  { border-left-color: #E74C3C; }
-.kpi-card.rojo  .kpi-icon { background: #FDEDEC; color: #E74C3C; }
-.kpi-card.naranja { border-left-color: #F39C12; }
-.kpi-card.naranja .kpi-icon { background: #FEF9E7; color: #F39C12; }
+.kpi-card.verde { border-left-color: #6B9C82; }
+.kpi-card.verde .kpi-icon { background: #E8F1EC; color: #4F7D64; }
+.kpi-card.rojo  { border-left-color: #BC6B60; }
+.kpi-card.rojo  .kpi-icon { background: #F5E8E6; color: #A34A3F; }
+.kpi-card.naranja { border-left-color: #BC9257; }
+.kpi-card.naranja .kpi-icon { background: #F5EEE0; color: #96702F; }
 
 .kpi-header {
   display: flex;
@@ -446,10 +446,10 @@ tbody td {
   white-space: nowrap;
 }
 
-.estado-aprobado  { background: #E8F8F1; color: #1A8A4A; }
-.estado-rechazado { background: #FDEDEC; color: #C0392B; }
-.estado-pendiente { background: #FEF9E7; color: #B7770D; }
-.estado-parcial   { background: #EBF5FF; color: #2471A3; }
+.estado-aprobado  { background: #E8F1EC; color: #3F6B54; }
+.estado-rechazado { background: #F5E8E6; color: #A34A3F; }
+.estado-pendiente { background: #F5EEE0; color: #96702F; }
+.estado-parcial   { background: #E4EAF0; color: #3B5069; }
 
 /* Barra de cumplimiento */
 .cumplimiento-cell {
@@ -474,8 +474,8 @@ tbody td {
   transition: width 0.6s ease;
 }
 
-.cumplimiento-bar.bajo { background: linear-gradient(90deg, #E74C3C, #C0392B); }
-.cumplimiento-bar.medio { background: linear-gradient(90deg, #F39C12, #E67E22); }
+.cumplimiento-bar.bajo { background: linear-gradient(90deg, #BC6B60, #A34A3F); }
+.cumplimiento-bar.medio { background: linear-gradient(90deg, #BC9257, #96702F); }
 
 .cumplimiento-pct {
   font-size: 0.78rem;
