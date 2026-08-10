@@ -113,10 +113,11 @@ function mapearColumnas(filas) {
     } else if (rawFecha instanceof Date) {
       fecha = rawFecha.toISOString().split('T')[0];
     } else if (typeof rawFecha === 'string' && rawFecha.includes('/')) {
-      const [d, m, y] = rawFecha.split('/');
-      fecha = `${y}-${m.padStart(2,'0')}-${d.padStart(2,'0')}`;
+      const [d, m, y] = rawFecha.split(' ')[0].split('/');
+      const esValida = d && m && y && /^\d{1,2}$/.test(d) && /^\d{1,2}$/.test(m) && /^\d{4}$/.test(y);
+      fecha = esValida ? `${y}-${m.padStart(2,'0')}-${d.padStart(2,'0')}` : '';
     } else {
-      fecha = String(rawFecha);
+      fecha = '';
     }
 
     // ── Nota del técnico → cumplimiento % ──

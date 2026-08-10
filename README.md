@@ -10,17 +10,15 @@ publicado gratuitamente en GitHub Pages.
 ```
 dashboard-auditorias\
 │
-├── auditorias.xlsx          ← TU ARCHIVO EXCEL (actualiza este diariamente)
+├── actualizar.bat                    ← DOBLE CLIC para publicar los cambios
+├── setup_primera_vez.bat             ← Ejecutar SOLO la primera vez
 │
-├── actualizar.bat           ← DOBLE CLIC para publicar los cambios
-├── setup_primera_vez.bat    ← Ejecutar SOLO la primera vez
-│
-├── index.html               ← Página web del dashboard
-├── css\style.css            ← Estilos
-├── js\dashboard.js          ← Lógica del dashboard
+├── index.html                        ← Página web del dashboard
+├── css\style.css                     ← Estilos
+├── js\dashboard.js                   ← Lógica del dashboard
 │
 └── data\
-    └── auditorias.xlsx      ← Copia automática (no tocar)
+    └── BBDD_Supervisores.xlsx        ← TU ARCHIVO EXCEL (actualiza este diariamente)
 ```
 
 ---
@@ -30,7 +28,7 @@ dashboard-auditorias\
 ### Flujo de trabajo:
 
 ```
-1. Abre "auditorias.xlsx" → actualiza tus datos → Guarda y cierra
+1. Abre "data\BBDD_Supervisores.xlsx" → actualiza tus datos → Guarda y cierra
 2. Haz doble clic en "actualizar.bat"
 3. Espera ~1 minuto → ¡tu página web ya tiene los datos nuevos!
 ```
@@ -84,21 +82,26 @@ Si Git te pide contraseña, usa un token personal:
 
 ---
 
-## 📊 Columnas del Excel (formato recomendado)
+## 📊 Columnas del Excel
 
-Tu Excel puede tener cualquier nombre de columnas — el sistema las detecta automáticamente.  
-Para mejores resultados, usa columnas con estos nombres (o similares):
+`BBDD_Supervisores.xlsx` viene de un formulario de Google Forms, así que el sistema
+espera exactamente estos encabezados de columna (respetando espacios y tildes):
 
-| Columna | Descripción | Ejemplo |
-|---|---|---|
-| `Fecha` | Fecha de la auditoría | 15/01/2024 |
-| `Zona` | Zona o región | Zona Norte |
-| `Lugar` | Sitio o establecimiento | Planta Maipú |
-| `Auditor` | Nombre del auditor | Ana Pérez |
-| `Cumplimiento` | Porcentaje (0–100 o 0–1) | 85 |
-| `Estado` | Aprobado / Parcial / Rechazado | Aprobado |
-| `Hallazgos` | Cantidad de observaciones | 3 |
-| `Tipo` | Categoría de auditoría | Seguridad |
+| Columna del Excel | Se usa como |
+|---|---|
+| `Marca temporal` | Fecha de la auditoría |
+| `N° PETICIÓN ` | N° de petición |
+| `Nombre Técnico` | Técnico auditado |
+| `SUPERVISOR` | Supervisor/auditor |
+| `ACTIVIDAD` | Actividad |
+| `AUDITORIA` | Tipo de auditoría |
+| `DIRECCIÓN (Calle - Numero) ` | Dirección |
+| `Con que nota se evalúa al técnico ` | Nota (0–10) → % de cumplimiento |
+| `Estado Auditoria ` / `Técnico cumple correctamente con su función?  ` | Estado (Aprobado/Rechazado) |
+| `Observaciones (detallar observaciones)` | Observaciones |
+
+Si cambias el formulario de Google Forms, estos nombres de columna deben actualizarse
+también en `js/dashboard.js` (función `mapearColumnas`).
 
 ---
 
