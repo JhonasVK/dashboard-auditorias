@@ -17,7 +17,7 @@
   --gris-50:  #F7F9FC;
   --gris-100: #ECEFF4;
   --gris-200: #DDE3ED;
-  --gris-300: #B0BBC9;
+  --gris-300: #5F6B7B;
   --gris-600: #5A6678;
   --gris-800: #2D3748;
   --gris-900: #1A202C;
@@ -460,7 +460,7 @@ tbody td {
 
 .estado-aprobado  { background: #E8F1EC; color: #3F6B54; }
 .estado-rechazado { background: #F5E8E6; color: #A34A3F; }
-.estado-pendiente { background: #F5EEE0; color: #96702F; }
+.estado-pendiente { background: #F5EEE0; color: #7A5A26; }
 .estado-parcial   { background: #E4EAF0; color: #3B5069; }
 
 /* Barra de cumplimiento */
