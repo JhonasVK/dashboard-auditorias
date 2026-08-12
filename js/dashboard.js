@@ -475,12 +475,12 @@ function renderListaNotas() {
   }
 
   cont.innerHTML = list.map(item => {
-    const color = item.pct >= 85 ? '#4F7D64' : item.pct >= 60 ? '#96702F' : '#A34A3F';
+    const color = item.pct >= 85 ? 'var(--verde)' : item.pct >= 60 ? 'var(--ambar)' : 'var(--rojo)';
     const audPrefix = superFiltro ? '' : `[${item.auditor.split(' ')[0]}] `;
     return `
-      <div style="display:flex; justify-content:space-between; align-items:center; padding:10px 4px; border-bottom:1px solid var(--gris-100); font-size:0.85rem;">
-        <span style="color:var(--gris-800); font-weight:500;">${audPrefix}${escHtml(item.tecnico)}</span>
-        <span style="font-weight:700; color:${color};">${item.pct}%</span>
+      <div class="fila">
+        <span class="nombre">${audPrefix}${escHtml(item.tecnico)}</span>
+        <span class="valor" style="color:${color};">${item.pct}%</span>
       </div>`;
   }).join('');
 }
@@ -498,7 +498,7 @@ function renderizarTabla() {
     tbody.innerHTML = `
       <tr><td colspan="7">
         <div class="empty-state">
-          <div class="empty-icon">📋</div>
+          <svg class="empty-icon"><use href="#icon-clipboard"/></svg>
           <h3>Sin resultados</h3>
           <p>No hay auditorías que coincidan con los filtros seleccionados.</p>
         </div>
@@ -619,22 +619,22 @@ function renderizarRanking() {
 
   // 5. Generar HTML interno
   function generarHtml(tecnicos, type) {
-    if (tecnicos.length === 0) return `<div style="color:var(--gris-400);font-size:0.9rem;font-style:italic;">Sin datos suficientes</div>`;
+    if (tecnicos.length === 0) return `<div style="color:var(--gris-300);font-size:0.9rem;font-style:italic;">Sin datos suficientes</div>`;
+    const color = type === 'top' ? 'var(--verde)' : 'var(--rojo)';
+    const bg = type === 'top' ? 'var(--verde-bg)' : 'var(--rojo-bg)';
     return tecnicos.map((t, idx) => {
-      const colorCls = type === 'top' ? 'color:#4F7D64;' : 'color:#A34A3F;';
-      const bgCls = type === 'top' ? 'background:#E8F1EC;' : 'background:#F5E8E6;';
       return `
-        <div style="display: flex; align-items: center; justify-content: space-between; padding: 12px; border: 1px solid var(--gris-200); border-radius: 8px; ${bgCls}">
-          <div style="display: flex; align-items: center; gap: 12px;">
-            <div style="font-weight: 700; font-size: 1.1rem; ${colorCls} min-width: 24px;">#${idx + 1}</div>
-            <div style="display: flex; flex-direction: column;">
-              <span style="font-weight: 600; color: var(--gris-800); font-size: 0.95rem;">${escHtml(t.tecnico)}</span>
-              <span style="font-size: 0.75rem; color: var(--gris-400);">${escHtml(t.auditor)}</span>
+        <div class="ranking-fila" style="background:${bg};">
+          <div class="persona">
+            <div class="puesto" style="color:${color};">#${idx + 1}</div>
+            <div class="info">
+              <span class="tecnico">${escHtml(t.tecnico)}</span>
+              <span class="supervisor">${escHtml(t.auditor)}</span>
             </div>
           </div>
-          <div style="display: flex; flex-direction: column; align-items: flex-end;">
-            <span style="font-weight: 700; font-size: 1.1rem; ${colorCls}">${t.promedio} / 10</span>
-            <span style="font-size: 0.7rem; color: var(--gris-400);">${t.count} auditoría(s)</span>
+          <div class="medida">
+            <span class="nota" style="color:${color};">${t.promedio} / 10</span>
+            <span class="cuenta">${t.count} auditoría(s)</span>
           </div>
         </div>
       `;
@@ -672,15 +672,15 @@ function renderizarHallazgos() {
   resultados.sort((a, b) => b.pct - a.pct);
 
   cont.innerHTML = resultados.map(r => {
-    const color = r.pct >= 50 ? '#A34A3F' : r.pct >= 25 ? '#96702F' : '#4F7D64';
+    const color = r.pct >= 50 ? 'var(--rojo)' : r.pct >= 25 ? 'var(--ambar)' : 'var(--verde)';
     return `
-      <div style="margin-bottom: 14px;">
-        <div style="display:flex; justify-content:space-between; align-items:baseline; font-size:0.85rem; margin-bottom:5px;">
-          <span style="font-weight:600; color:var(--gris-800);">${r.label}</span>
-          <span style="font-weight:700; color:${color};">${r.pct}% <span style="font-weight:400; color:var(--gris-300); font-size:0.75rem;">(${r.noCumple}/${r.total})</span></span>
+      <div class="hallazgo-fila">
+        <div class="hallazgo-head">
+          <span class="label">${r.label}</span>
+          <span class="pct" style="color:${color};">${r.pct}% <span class="conteo">(${r.noCumple}/${r.total})</span></span>
         </div>
-        <div style="height:8px; background:var(--gris-200); border-radius:4px; overflow:hidden;">
-          <div style="height:100%; width:${r.pct}%; background:${color}; border-radius:4px; transition:width 0.6s ease;"></div>
+        <div class="hallazgo-barra-bg">
+          <div class="hallazgo-barra" style="width:${r.pct}%; background:${color};"></div>
         </div>
       </div>`;
   }).join('');
