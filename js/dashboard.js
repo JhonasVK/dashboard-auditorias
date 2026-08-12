@@ -302,18 +302,26 @@ function fechaLocalHoy() {
   return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
 }
 
+function fechaLocalAyer() {
+  const d = new Date();
+  d.setDate(d.getDate() - 1);
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+}
+
+// Se evalúa el día anterior porque este reporte se lee en la mañana,
+// cuando las auditorías del día actual todavía no existen.
 function renderizarMetaDiaria() {
-  const hoy = fechaLocalHoy();
+  const ayer = fechaLocalAyer();
   const metaTotal = META_AUDITORIAS_POR_SUPERVISOR * SUPERVISORES_META.length;
 
   const conteos = SUPERVISORES_META.map(s => ({
     ...s,
-    count: datosOriginales.filter(d => d.fecha === hoy && d.auditor && d.auditor.toUpperCase().includes(s.key)).length,
+    count: datosOriginales.filter(d => d.fecha === ayer && d.auditor && d.auditor.toUpperCase().includes(s.key)).length,
   }));
-  const totalHoy = conteos.reduce((s, c) => s + c.count, 0);
-  const pct = metaTotal ? Math.round((totalHoy / metaTotal) * 100) : 0;
+  const totalAyer = conteos.reduce((s, c) => s + c.count, 0);
+  const pct = metaTotal ? Math.round((totalAyer / metaTotal) * 100) : 0;
 
-  setKPI('kpi-meta-diaria', pct + '%', `${totalHoy} de ${metaTotal} auditorías de hoy`);
+  setKPI('kpi-meta-diaria', pct + '%', `${totalAyer} de ${metaTotal} auditorías de ayer`);
 
   const detalleEl = document.getElementById('val-meta-diaria-detalle');
   if (detalleEl) {
