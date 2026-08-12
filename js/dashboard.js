@@ -283,6 +283,7 @@ function renderizarKPIs() {
 
   renderizarMetaDiaria();
   renderizarPromedioMensual();
+  renderizarMesasTrabajo();
 }
 
 // ─── META DIARIA (2 auditorías por supervisor) ────────────────
@@ -369,6 +370,24 @@ function renderizarPromedioMensual() {
       return `<div style="display:flex; justify-content:space-between; color:${color}; margin-bottom:2px;"><span>${c.label}:</span> <span>${c.promedioDiario.toFixed(1)} / día</span></div>`;
     }).join('');
   }
+}
+
+// ─── MESAS DE TRABAJO POR SUPERVISOR ───────────────────────────
+function renderizarMesasTrabajo() {
+  const el = document.getElementById('val-mesas-trabajo');
+  if (!el) return;
+
+  const conteos = SUPERVISORES_META.map(s => {
+    const count = datosFiltrados.filter(d =>
+      d.auditor && d.auditor.toUpperCase().includes(s.key) &&
+      d.mesaTrabajo && d.mesaTrabajo.trim().toUpperCase() === 'SI'
+    ).length;
+    return { ...s, count };
+  });
+
+  el.innerHTML = conteos.map(c =>
+    `<div style="display:flex; justify-content:space-between; color:${c.color}; margin-bottom:2px;"><span>${c.label}:</span> <span>${c.count}</span></div>`
+  ).join('');
 }
 
 // ─── TENDENCIA vs. MES ANTERIOR ───────────────────────────────
