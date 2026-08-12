@@ -286,6 +286,7 @@ function renderizarKPIs() {
   }
 
   renderizarMetaDiaria();
+  renderizarPromedioMensual();
 }
 
 // ─── META DIARIA (2 auditorías por supervisor) ────────────────
@@ -321,6 +322,34 @@ function renderizarMetaDiaria() {
       const color = cumple ? '#4F7D64' : c.color;
       const icono = cumple ? '✓' : '';
       return `<div style="display:flex; justify-content:space-between; color:${color}; margin-bottom:2px;"><span>${c.label}:</span> <span>${c.count} / ${META_AUDITORIAS_POR_SUPERVISOR} ${icono}</span></div>`;
+    }).join('');
+  }
+}
+
+// ─── PROMEDIO MENSUAL (auditorías/día vs. meta 2/día) ─────────
+function renderizarPromedioMensual() {
+  const hoy = new Date();
+  const mesActual = `${hoy.getFullYear()}-${String(hoy.getMonth() + 1).padStart(2, '0')}`;
+  const diasTranscurridos = hoy.getDate();
+  const metaMensual = META_AUDITORIAS_POR_SUPERVISOR * SUPERVISORES_META.length * diasTranscurridos;
+
+  const conteos = SUPERVISORES_META.map(s => {
+    const count = datosOriginales.filter(d => d.fecha && d.fecha.startsWith(mesActual) && d.auditor && d.auditor.toUpperCase().includes(s.key)).length;
+    const promedioDiario = diasTranscurridos ? count / diasTranscurridos : 0;
+    return { ...s, count, promedioDiario };
+  });
+
+  const totalMes = conteos.reduce((s, c) => s + c.count, 0);
+  const pct = metaMensual ? Math.round((totalMes / metaMensual) * 100) : 0;
+
+  setKPI('kpi-promedio-mensual', pct + '%', `${totalMes} de ${metaMensual} esperadas (mes a la fecha)`);
+
+  const detalleEl = document.getElementById('val-promedio-mensual-detalle');
+  if (detalleEl) {
+    detalleEl.innerHTML = conteos.map(c => {
+      const cumple = c.promedioDiario >= META_AUDITORIAS_POR_SUPERVISOR;
+      const color = cumple ? '#4F7D64' : c.color;
+      return `<div style="display:flex; justify-content:space-between; color:${color}; margin-bottom:2px;"><span>${c.label}:</span> <span>${c.promedioDiario.toFixed(1)} / día</span></div>`;
     }).join('');
   }
 }
