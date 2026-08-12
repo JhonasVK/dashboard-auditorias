@@ -284,8 +284,46 @@ function renderizarKPIs() {
       <div style="display:flex; justify-content:space-between; color: #A34A3F;"><span>Julio:</span> <span>${julio}</span></div>
     `;
   }
+
+  renderizarMetaDiaria();
 }
 
+// ─── META DIARIA (2 auditorías por supervisor) ────────────────
+const META_AUDITORIAS_POR_SUPERVISOR = 2;
+const SUPERVISORES_META = [
+  { key: 'DANILO',  label: 'Danilo',  color: '#3B5069' },
+  { key: 'ROLANDO', label: 'Rolando', color: '#96702F' },
+  { key: 'JULIO',   label: 'Julio',   color: '#A34A3F' },
+];
+
+function fechaLocalHoy() {
+  const d = new Date();
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+}
+
+function renderizarMetaDiaria() {
+  const hoy = fechaLocalHoy();
+  const metaTotal = META_AUDITORIAS_POR_SUPERVISOR * SUPERVISORES_META.length;
+
+  const conteos = SUPERVISORES_META.map(s => ({
+    ...s,
+    count: datosOriginales.filter(d => d.fecha === hoy && d.auditor && d.auditor.toUpperCase().includes(s.key)).length,
+  }));
+  const totalHoy = conteos.reduce((s, c) => s + c.count, 0);
+  const pct = metaTotal ? Math.round((totalHoy / metaTotal) * 100) : 0;
+
+  setKPI('kpi-meta-diaria', pct + '%', `${totalHoy} de ${metaTotal} auditorías de hoy`);
+
+  const detalleEl = document.getElementById('val-meta-diaria-detalle');
+  if (detalleEl) {
+    detalleEl.innerHTML = conteos.map(c => {
+      const cumple = c.count >= META_AUDITORIAS_POR_SUPERVISOR;
+      const color = cumple ? '#4F7D64' : c.color;
+      const icono = cumple ? '✓' : '';
+      return `<div style="display:flex; justify-content:space-between; color:${color}; margin-bottom:2px;"><span>${c.label}:</span> <span>${c.count} / ${META_AUDITORIAS_POR_SUPERVISOR} ${icono}</span></div>`;
+    }).join('');
+  }
+}
 
 // ─── TENDENCIA vs. MES ANTERIOR ───────────────────────────────
 function mesAnteriorStr(mesStr) {
