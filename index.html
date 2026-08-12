@@ -5,9 +5,12 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Dashboard Auditorías de Terreno</title>
   <meta name="description" content="Dashboard interactivo de indicadores para auditorías de terreno. Visualiza cumplimiento, hallazgos y evolución histórica por zona y auditor." />
+  <meta http-equiv="Cache-Control" content="no-cache, must-revalidate" />
 
   <!-- Estilos -->
-  <link rel="stylesheet" href="css/style.css" />
+  <!-- IMPORTANTE: subir el número de ?v= cada vez que se edite style.css o dashboard.js,
+       para que el navegador detecte el archivo como nuevo y no sirva una copia en caché. -->
+  <link rel="stylesheet" href="css/style.css?v=2" />
 
   <!-- Toast estilos inline para no requerir otro archivo -->
   <style>
@@ -299,7 +302,7 @@
   </footer>
 
   <!-- Script principal -->
-  <script src="js/dashboard.js"></script>
+  <script src="js/dashboard.js?v=2"></script>
 
 </body>
 </html>
