@@ -331,10 +331,23 @@ function renderizarMetaDiaria() {
 }
 
 // ─── PROMEDIO MENSUAL (auditorías/día vs. meta 2/día) ─────────
+// Cuenta días hábiles (lunes a viernes) desde el día 1 del mes actual hasta hoy, inclusive.
+function diasHabilesTranscurridos() {
+  const hoy = new Date();
+  const anio = hoy.getFullYear();
+  const mes = hoy.getMonth();
+  let habiles = 0;
+  for (let dia = 1; dia <= hoy.getDate(); dia++) {
+    const dow = new Date(anio, mes, dia).getDay(); // 0=domingo, 6=sábado
+    if (dow !== 0 && dow !== 6) habiles++;
+  }
+  return habiles;
+}
+
 function renderizarPromedioMensual() {
   const hoy = new Date();
   const mesActual = `${hoy.getFullYear()}-${String(hoy.getMonth() + 1).padStart(2, '0')}`;
-  const diasTranscurridos = hoy.getDate();
+  const diasTranscurridos = diasHabilesTranscurridos();
   const metaMensual = META_AUDITORIAS_POR_SUPERVISOR * SUPERVISORES_META.length * diasTranscurridos;
 
   const conteos = SUPERVISORES_META.map(s => {
@@ -346,7 +359,7 @@ function renderizarPromedioMensual() {
   const totalMes = conteos.reduce((s, c) => s + c.count, 0);
   const pct = metaMensual ? Math.round((totalMes / metaMensual) * 100) : 0;
 
-  setKPI('kpi-promedio-mensual', pct + '%', `${totalMes} de ${metaMensual} esperadas (mes a la fecha)`);
+  setKPI('kpi-promedio-mensual', pct + '%', `${totalMes} de ${metaMensual} esperadas (${diasTranscurridos} días hábiles)`);
 
   const detalleEl = document.getElementById('val-promedio-mensual-detalle');
   if (detalleEl) {
