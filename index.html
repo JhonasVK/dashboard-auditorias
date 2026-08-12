@@ -189,41 +189,6 @@
 
     </section>
 
-    <!-- EVOLUCIÓN SUPERVISORES -->
-    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; padding: 0 4px;">
-      <h2 style="font-size: 1.05rem; color: var(--gris-800); display: flex; align-items: center; gap: 8px;">
-        <span class="icon">👥</span> Evolución por Supervisor
-      </h2>
-      <select id="filtro-tiempo" onchange="renderizarGraficas()" style="padding: 6px 12px; border-radius: 8px; border: 1.5px solid var(--gris-200); font-size: 0.8rem; outline: none; cursor: pointer;">
-        <option value="mensual">Vista Mensual</option>
-        <option value="semanal">Vista Semanal</option>
-      </select>
-    </div>
-
-    <section class="kpi-grid" style="grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); margin-bottom: 30px;" aria-label="Evolución Supervisores">
-      
-      <div class="chart-card" style="padding: 16px;">
-        <div class="chart-header" style="margin-bottom: 12px;">
-          <div class="chart-title" style="font-size: 0.85rem;"><span class="icon" style="color: #3B5069;">🟢</span> DANILO OJEDA</div>
-        </div>
-        <div class="chart-container"><canvas id="chart-danilo"></canvas></div>
-      </div>
-
-      <div class="chart-card" style="padding: 16px;">
-        <div class="chart-header" style="margin-bottom: 12px;">
-          <div class="chart-title" style="font-size: 0.85rem;"><span class="icon" style="color: #96702F;">🟡</span> ROLANDO MOTOYA</div>
-        </div>
-        <div class="chart-container"><canvas id="chart-rolando"></canvas></div>
-      </div>
-
-      <div class="chart-card" style="padding: 16px;">
-        <div class="chart-header" style="margin-bottom: 12px;">
-          <div class="chart-title" style="font-size: 0.85rem;"><span class="icon" style="color: #A34A3F;">🔴</span> JULIO CABRERA</div>
-        </div>
-        <div class="chart-container"><canvas id="chart-julio"></canvas></div>
-      </div>
-
-    </section>
 
     <!-- TABLA DE DATOS -->
     <section class="tabla-card" aria-label="Detalle de auditorías">

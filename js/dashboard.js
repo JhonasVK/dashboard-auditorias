@@ -28,9 +28,6 @@ const DATOS_EJEMPLO = [
 // ─── ESTADO GLOBAL ────────────────────────────────────────────
 let datosOriginales = [...DATOS_EJEMPLO];
 let datosFiltrados  = [...DATOS_EJEMPLO];
-let chartDanilo     = null;
-let chartRolando    = null;
-let chartJulio      = null;
 let chartBarras     = null;
 let paginaActual    = 1;
 const FILAS_POR_PAGINA = 15;
@@ -438,7 +435,6 @@ function setKPI(id, valor, sub) {
 // ─── GRÁFICAS ────────────────────────────────────────────────
 function renderizarGraficas() {
   renderChartBarras();
-  renderChartsSupervisores();
 }
 
 const CELESTE_PALETTE = ['#7C93AB','#5D7A9B','#4A6483','#8FA6BC','#A9BDCE','#C6D3E0','#3B5069'];
@@ -528,88 +524,6 @@ function renderChartBarras() {
           grid: { display: false },
           ticks: { font: { size: 10 }, autoSkip: false } // No saltar nombres
         }
-      }
-    }
-  });
-}
-
-// ─── GRÁFICAS DE SUPERVISORES ────────────────────────────────
-function getWeekNumber(dStr) {
-  const d = new Date(dStr);
-  d.setUTCDate(d.getUTCDate() + 4 - (d.getUTCDay() || 7));
-  const yearStart = new Date(Date.UTC(d.getUTCFullYear(), 0, 1));
-  const weekNo = Math.ceil((((d - yearStart) / 86400000) + 1) / 7);
-  return d.getUTCFullYear() + '-W' + String(weekNo).padStart(2, '0');
-}
-
-function renderChartsSupervisores() {
-  chartDanilo = renderChartSupervisor('DANILO', chartDanilo, 'chart-danilo', '#3B5069');
-  chartRolando = renderChartSupervisor('ROLANDO', chartRolando, 'chart-rolando', '#96702F');
-  chartJulio = renderChartSupervisor('JULIO', chartJulio, 'chart-julio', '#A34A3F');
-}
-
-function renderChartSupervisor(nombre, chartRef, canvasId, color) {
-  const ctx = document.getElementById(canvasId)?.getContext('2d');
-  if (!ctx) return chartRef;
-
-  const tipoVista = document.getElementById('filtro-tiempo')?.value || 'mensual';
-  const supervisorData = datosFiltrados.filter(d => d.auditor && d.auditor.toUpperCase().includes(nombre));
-  
-  const agrupado = {};
-  supervisorData.forEach(d => {
-    if (!d.fecha) return;
-    const clave = tipoVista === 'mensual' ? d.fecha.substring(0,7) : getWeekNumber(d.fecha);
-    if (!agrupado[clave]) agrupado[clave] = { count: 0, sum: 0 };
-    agrupado[clave].count++;
-    agrupado[clave].sum += (d.nota || 0);
-  });
-
-  const labels = Object.keys(agrupado).sort();
-  const dataPromedio = labels.map(k => +(agrupado[k].sum / agrupado[k].count).toFixed(1));
-  const dataCount = labels.map(k => agrupado[k].count);
-  
-  const labelsFormateados = labels.map(k => {
-    if (tipoVista === 'mensual') {
-      const [y, mo] = k.split('-');
-      return new Date(+y, +mo-1).toLocaleDateString('es-CL', { month:'short', year:'2-digit' });
-    }
-    return k.replace('-W', ' Sem ');
-  });
-
-  if (chartRef) chartRef.destroy();
-  return new Chart(ctx, {
-    type: 'bar',
-    data: {
-      labels: labelsFormateados,
-      datasets: [
-        {
-          type: 'line',
-          label: 'Nota Promedio',
-          data: dataPromedio,
-          borderColor: color,
-          backgroundColor: color,
-          borderWidth: 2,
-          yAxisID: 'y',
-          tension: 0.3
-        },
-        {
-          type: 'bar',
-          label: 'Cantidad Auditorías',
-          data: dataCount,
-          backgroundColor: color + '40', // opacidad aprox 25%
-          borderRadius: 4,
-          yAxisID: 'y1'
-        }
-      ]
-    },
-    options: {
-      responsive: true,
-      maintainAspectRatio: true,
-      plugins: { legend: { display: false } },
-      scales: {
-        x: { grid: { display: false }, ticks: { font: { size: 10 } } },
-        y: { type: 'linear', display: true, position: 'left', min: 0, max: 10, title: { display: true, text: 'Nota', font: { size: 10 } }, ticks: { font: { size: 10 } } },
-        y1: { type: 'linear', display: true, position: 'right', min: 0, grid: { drawOnChartArea: false }, title: { display: true, text: 'Volumen', font: { size: 10 } }, ticks: { font: { size: 10 }, precision: 0 } }
       }
     }
   });
