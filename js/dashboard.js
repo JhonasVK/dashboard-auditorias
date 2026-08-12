@@ -254,6 +254,7 @@ function renderizar() {
   renderizarGraficas();
   renderizarTabla();
   renderizarRanking();
+  renderizarHallazgos();
 }
 
 // ─── KPI CARDS ───────────────────────────────────────────────
@@ -687,6 +688,47 @@ function renderizarRanking() {
 
   containerTop.innerHTML = generarHtml(top3, 'top');
   containerBottom.innerHTML = generarHtml(bottom3, 'bottom');
+}
+
+// ─── TOP HALLAZGOS (CHECKLIST) ─────────────────────────────────
+const CHECKLIST_ITEMS = [
+  { key: 'pasamuros',    label: 'No instala pasamuros' },
+  { key: 'roseta',       label: 'Roseta óptica fuera de norma' },
+  { key: 'limpio',       label: 'No deja área de trabajo limpia' },
+  { key: 'capacitacion', label: 'No capacita al cliente' },
+];
+
+function renderizarHallazgos() {
+  const cont = document.getElementById('hallazgos-list');
+  if (!cont) return;
+
+  const resultados = CHECKLIST_ITEMS.map(item => {
+    const respuestas = datosFiltrados.filter(d => d[item.key] && d[item.key].trim() !== '');
+    const noCumple = respuestas.filter(d => d[item.key].trim().toUpperCase() === 'NO').length;
+    const pct = respuestas.length ? Math.round((noCumple / respuestas.length) * 100) : 0;
+    return { ...item, noCumple, total: respuestas.length, pct };
+  }).filter(r => r.total > 0);
+
+  if (resultados.length === 0) {
+    cont.innerHTML = `<div style="color:var(--gris-300);font-size:0.9rem;font-style:italic;">Sin datos de checklist disponibles</div>`;
+    return;
+  }
+
+  resultados.sort((a, b) => b.pct - a.pct);
+
+  cont.innerHTML = resultados.map(r => {
+    const color = r.pct >= 50 ? '#A34A3F' : r.pct >= 25 ? '#96702F' : '#4F7D64';
+    return `
+      <div style="margin-bottom: 14px;">
+        <div style="display:flex; justify-content:space-between; align-items:baseline; font-size:0.85rem; margin-bottom:5px;">
+          <span style="font-weight:600; color:var(--gris-800);">${r.label}</span>
+          <span style="font-weight:700; color:${color};">${r.pct}% <span style="font-weight:400; color:var(--gris-300); font-size:0.75rem;">(${r.noCumple}/${r.total})</span></span>
+        </div>
+        <div style="height:8px; background:var(--gris-200); border-radius:4px; overflow:hidden;">
+          <div style="height:100%; width:${r.pct}%; background:${color}; border-radius:4px; transition:width 0.6s ease;"></div>
+        </div>
+      </div>`;
+  }).join('');
 }
 
 // ─── EXPORTACIÓN ─────────────────────────────────────────────
