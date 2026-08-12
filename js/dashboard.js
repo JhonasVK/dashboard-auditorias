@@ -32,7 +32,6 @@ let chartDanilo     = null;
 let chartRolando    = null;
 let chartJulio      = null;
 let chartBarras     = null;
-let chartLineas     = null;
 let paginaActual    = 1;
 const FILAS_POR_PAGINA = 15;
 // ─── INICIALIZACIÓN ───────────────────────────────────────────
@@ -439,7 +438,6 @@ function setKPI(id, valor, sub) {
 // ─── GRÁFICAS ────────────────────────────────────────────────
 function renderizarGraficas() {
   renderChartBarras();
-  renderChartLineas();
   renderChartsSupervisores();
 }
 
@@ -529,77 +527,6 @@ function renderChartBarras() {
         y: {
           grid: { display: false },
           ticks: { font: { size: 10 }, autoSkip: false } // No saltar nombres
-        }
-      }
-    }
-  });
-}
-
-function renderChartLineas() {
-  const ctx = document.getElementById('chart-lineas')?.getContext('2d');
-  if (!ctx) return;
-
-  // Obtener meses únicos para el eje X
-  const mesesSet = new Set();
-  datosFiltrados.forEach(d => { if (d.fecha) mesesSet.add(d.fecha.substring(0,7)); });
-  const labels = [...mesesSet].sort();
-  
-  // Configuración de los supervisores
-  const superConfigs = [
-    { key: 'DANILO', label: 'Danilo Ojeda', color: '#3B5069' },
-    { key: 'ROLANDO', label: 'Rolando Montoya', color: '#96702F' },
-    { key: 'JULIO', label: 'Julio Cabrera', color: '#A34A3F' }
-  ];
-
-  const datasets = superConfigs.map(conf => {
-    const data = labels.map(m => {
-      const grupo = datosFiltrados.filter(d => d.fecha && d.fecha.startsWith(m) && d.auditor && d.auditor.toUpperCase().includes(conf.key));
-      return grupo.length ? +(grupo.reduce((s,d) => s+(d.nota||0), 0) / grupo.length).toFixed(1) : null;
-    });
-    
-    return {
-      label: conf.label,
-      data,
-      borderColor: conf.color,
-      backgroundColor: conf.color,
-      borderWidth: 2.5,
-      pointBackgroundColor: conf.color,
-      pointRadius: 4,
-      pointHoverRadius: 6,
-      fill: false,
-      tension: 0.35,
-      spanGaps: true
-    };
-  });
-
-  const labelsFormateados = labels.map(m => {
-    const [y, mo] = m.split('-');
-    return new Date(+y, +mo-1).toLocaleDateString('es-CL', { month:'short', year:'2-digit' });
-  });
-
-  if (chartLineas) chartLineas.destroy();
-  chartLineas = new Chart(ctx, {
-    type: 'line',
-    data: {
-      labels: labelsFormateados,
-      datasets
-    },
-    options: {
-      responsive: true,
-      maintainAspectRatio: true,
-      plugins: {
-        legend: { display: true, position: 'top', labels: { usePointStyle: true, boxWidth: 8, font: { size: 11 } } },
-        tooltip: { callbacks: { label: ctx => ` ${ctx.dataset.label}: ${ctx.raw} / 10` } }
-      },
-      scales: {
-        y: {
-          min: 0, max: 10,
-          grid: { color: '#ECEFF4' },
-          ticks: { font: { size: 11 } }
-        },
-        x: {
-          grid: { display: false },
-          ticks: { font: { size: 11 } }
         }
       }
     }
