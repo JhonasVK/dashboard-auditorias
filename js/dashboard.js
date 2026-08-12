@@ -28,7 +28,6 @@ const DATOS_EJEMPLO = [
 // ─── ESTADO GLOBAL ────────────────────────────────────────────
 let datosOriginales = [...DATOS_EJEMPLO];
 let datosFiltrados  = [...DATOS_EJEMPLO];
-let chartBarras     = null;
 let paginaActual    = 1;
 const FILAS_POR_PAGINA = 15;
 // ─── INICIALIZACIÓN ───────────────────────────────────────────
@@ -435,23 +434,23 @@ function setKPI(id, valor, sub) {
 
 // ─── GRÁFICAS ────────────────────────────────────────────────
 function renderizarGraficas() {
-  renderChartBarras();
+  renderListaNotas();
 }
 
 const CELESTE_PALETTE = ['#7C93AB','#5D7A9B','#4A6483','#8FA6BC','#A9BDCE','#C6D3E0','#3B5069'];
 const ESTADO_COLORS   = { aprobado:'#6B9C82', parcial:'#B08A4E', rechazado:'#B25950' };
 
-function renderChartBarras() {
-  const ctx = document.getElementById('chart-barras')?.getContext('2d');
-  if (!ctx) return;
+function renderListaNotas() {
+  const cont = document.getElementById('lista-notas');
+  if (!cont) return;
 
   const superFiltro = document.getElementById('filtro-chart-tecnicos')?.value || '';
-  const dataForChart = superFiltro 
+  const dataForList = superFiltro
     ? datosFiltrados.filter(d => d.auditor && d.auditor.toUpperCase().includes(superFiltro))
     : datosFiltrados;
 
   const techMap = {};
-  dataForChart.forEach(d => {
+  dataForList.forEach(d => {
     if (!d.tecnico) return;
     if (!techMap[d.tecnico]) techMap[d.tecnico] = { sum: 0, count: 0, auditor: d.auditor || 'Sin Supervisor' };
     techMap[d.tecnico].sum += (d.nota || 0);
@@ -461,73 +460,29 @@ function renderChartBarras() {
   const list = Object.keys(techMap).map(t => ({
     tecnico: t,
     auditor: techMap[t].auditor,
-    promedio: +(techMap[t].sum / techMap[t].count).toFixed(1)
+    pct: Math.round((techMap[t].sum / techMap[t].count / 10) * 100)
   }));
 
   // Ordenar por supervisor, luego por técnico
-  list.sort((a,b) => {
+  list.sort((a, b) => {
     if (a.auditor === b.auditor) return a.tecnico.localeCompare(b.tecnico);
     return a.auditor.localeCompare(b.auditor);
   });
 
-  const labels = list.map(item => {
-    const partes = item.tecnico.split(' ');
-    const nombreStr = partes.length >= 2 ? `${partes[0]} ${partes[1]}` : item.tecnico;
+  if (list.length === 0) {
+    cont.innerHTML = `<div style="color:var(--gris-300);font-size:0.9rem;font-style:italic;">Sin datos suficientes</div>`;
+    return;
+  }
+
+  cont.innerHTML = list.map(item => {
+    const color = item.pct >= 85 ? '#4F7D64' : item.pct >= 60 ? '#96702F' : '#A34A3F';
     const audPrefix = superFiltro ? '' : `[${item.auditor.split(' ')[0]}] `;
-    return `${audPrefix}${nombreStr}`;
-  });
-
-  const valores = list.map(item => item.promedio);
-  
-  const backgroundColors = list.map(item => {
-    const aud = item.auditor.toUpperCase();
-    if (aud.includes('DANILO')) return '#3B5069'; // Azul
-    if (aud.includes('ROLANDO')) return '#96702F'; // Naranja
-    if (aud.includes('JULIO')) return '#A34A3F'; // Rojo
-    return '#B0BBC9'; // Gris default
-  });
-
-  // Ajustar altura del contenedor dependiendo de la cantidad de técnicos
-  const numTecnicos = labels.length;
-  const minHeight = 300;
-  const dynamicHeight = Math.max(minHeight, numTecnicos * 25 + 50);
-  ctx.canvas.parentNode.style.height = `${dynamicHeight}px`;
-
-  if (chartBarras) chartBarras.destroy();
-  chartBarras = new Chart(ctx, {
-    type: 'bar',
-    data: {
-      labels,
-      datasets: [{
-        label: 'Nota promedio (0-10)',
-        data: valores,
-        backgroundColor: backgroundColors,
-        borderRadius: 4,
-        borderSkipped: false,
-        barThickness: 8, // Barras muy delgadas
-      }]
-    },
-    options: {
-      indexAxis: 'y', // Convertir a gráfico de barras horizontal
-      responsive: true,
-      maintainAspectRatio: false, // Permitir que la altura sea dinámica
-      plugins: {
-        legend: { display: false },
-        tooltip: { callbacks: { label: ctx => ` Nota: ${ctx.raw} / 10` } }
-      },
-      scales: {
-        x: {
-          min: 0, max: 10,
-          grid: { color: '#ECEFF4' },
-          ticks: { font: { size: 11 } }
-        },
-        y: {
-          grid: { display: false },
-          ticks: { font: { size: 10 }, autoSkip: false } // No saltar nombres
-        }
-      }
-    }
-  });
+    return `
+      <div style="display:flex; justify-content:space-between; align-items:center; padding:10px 4px; border-bottom:1px solid var(--gris-100); font-size:0.85rem;">
+        <span style="color:var(--gris-800); font-weight:500;">${audPrefix}${escHtml(item.tecnico)}</span>
+        <span style="font-weight:700; color:${color};">${item.pct}%</span>
+      </div>`;
+  }).join('');
 }
 
 // ─── TABLA ───────────────────────────────────────────────────

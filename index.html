@@ -175,15 +175,15 @@
       <div class="chart-card">
         <div class="chart-header">
           <div class="chart-title"><span class="icon">📊</span> Nota por Técnico</div>
-          <select id="filtro-chart-tecnicos" onchange="renderChartBarras()" style="padding: 4px 8px; border-radius: 6px; border: 1px solid var(--gris-200); font-size: 0.75rem; outline: none;">
+          <select id="filtro-chart-tecnicos" onchange="renderListaNotas()" style="padding: 4px 8px; border-radius: 6px; border: 1px solid var(--gris-200); font-size: 0.75rem; outline: none;">
             <option value="">Todos los Supervisores</option>
             <option value="DANILO">Danilo Ojeda</option>
             <option value="ROLANDO">Rolando Montoya</option>
             <option value="JULIO">Julio Cabrera</option>
           </select>
         </div>
-        <div class="chart-container">
-          <canvas id="chart-barras"></canvas>
+        <div id="lista-notas">
+          <!-- JS -->
         </div>
       </div>
 
@@ -281,7 +281,7 @@
   </footer>
 
   <!-- Script principal -->
-  <script src="js/dashboard.js?v=4"></script>
+  <script src="js/dashboard.js?v=5"></script>
 
 </body>
 </html>
