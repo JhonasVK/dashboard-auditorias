@@ -270,7 +270,7 @@ function renderizarKPIs() {
   setKPI('kpi-total',       total,                        'auditorías registradas');
   setKPI('kpi-cumplimiento', notaProm.toFixed(1) + ' / 10', 'nota promedio técnicos');
   setKPI('kpi-cierre',      cierres,                       'cierres con técnico');
-  setKPI('kpi-puntuacion',  puntuacionProm.toFixed(1),      'promedio puntuación');
+  setKPI('kpi-puntuacion',  puntuacionProm.toFixed(1),      'normas y procedimientos');
 
   renderizarTendenciaMensual(total, notaProm);
 
