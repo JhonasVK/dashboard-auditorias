@@ -519,10 +519,10 @@ function renderListaNotas() {
 
   cont.innerHTML = list.map(item => {
     const color = item.pct >= 85 ? 'var(--verde)' : item.pct >= 60 ? 'var(--ambar)' : 'var(--rojo)';
-    const audPrefix = superFiltro ? '' : `[${item.auditor.split(' ')[0]}] `;
+    const audPrefix = superFiltro ? '' : `<span class="supervisor-link" data-supervisor="${escHtml(item.auditor)}">[${escHtml(item.auditor.split(' ')[0])}]</span> `;
     return `
       <div class="fila">
-        <span class="nombre">${audPrefix}${escHtml(item.tecnico)}</span>
+        <span class="nombre">${audPrefix}<span class="tecnico-link" data-tecnico="${escHtml(item.tecnico)}">${escHtml(item.tecnico)}</span></span>
         <span class="valor" style="color:${color};">${item.pct}%</span>
       </div>`;
   }).join('');
@@ -551,6 +551,7 @@ function renderizarTabla() {
   }
 
   const ordenados = [...datosFiltrados].sort((a,b) => (b.fecha||'').localeCompare(a.fecha||''));
+  const checklistPorTecnico = analizarChecklistPorTecnico();
 
   const totalPaginas = Math.max(1, Math.ceil(ordenados.length / FILAS_POR_PAGINA));
   if (paginaActual > totalPaginas) paginaActual = totalPaginas;
@@ -571,11 +572,16 @@ function renderizarTabla() {
       ? new Date(d.fecha + 'T12:00:00').toLocaleDateString('es-CL', { day:'2-digit', month:'2-digit', year:'numeric' })
       : '—';
 
+    const reincidencias = (checklistPorTecnico[d.tecnico] || []).filter(i => i.count >= 2);
+    const badgeReincidente = reincidencias.length
+      ? `<span class="badge-reincidente" title="Reincidente en: ${escHtml(reincidencias.map(i => i.label).join(', '))}">⟳ Reincidente</span>`
+      : '';
+
     return `<tr>
       <td>${fechaFormateada}</td>
       <td><code style="font-size:0.75rem;background:#f0f4f8;padding:2px 6px;border-radius:4px">${escHtml(d.peticion)}</code></td>
-      <td><strong>${escHtml(d.tecnico)}</strong></td>
-      <td>${escHtml(d.auditor)}</td>
+      <td><strong class="tecnico-link" data-tecnico="${escHtml(d.tecnico)}">${escHtml(d.tecnico)}</strong> ${badgeReincidente}</td>
+      <td><span class="supervisor-link" data-supervisor="${escHtml(d.auditor)}">${escHtml(d.auditor)}</span></td>
       <td style="font-size:0.78rem;color:#5A6678">${escHtml(d.direccion)}</td>
       <td>
         <div class="cumplimiento-cell">
@@ -612,8 +618,35 @@ function cambiarPagina(n) {
 
 // ─── UTILIDADES ──────────────────────────────────────────────
 function escHtml(str) {
-  return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  return String(str)
+    .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
+    .replace(/"/g,'&quot;').replace(/'/g,'&#39;');
 }
+
+// ─── FILTRO RÁPIDO (clic en un técnico o supervisor) ───────────
+function filtrarPorTecnico(nombre) {
+  const sel = document.getElementById('filtro-auditor');
+  if (sel) sel.value = nombre;
+  aplicarFiltros();
+  document.getElementById('tabla-datos')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+// Filtra por supervisor: muestra en la tabla todos los técnicos que ese supervisor va auditando.
+function filtrarPorSupervisor(nombre) {
+  const selSup = document.getElementById('filtro-zona');
+  const selTec = document.getElementById('filtro-auditor');
+  if (selSup) selSup.value = nombre;
+  if (selTec) selTec.value = '';
+  aplicarFiltros();
+  document.getElementById('tabla-datos')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+document.addEventListener('click', (e) => {
+  const tec = e.target.closest('.tecnico-link');
+  if (tec) { filtrarPorTecnico(tec.dataset.tecnico); return; }
+  const sup = e.target.closest('.supervisor-link');
+  if (sup) { filtrarPorSupervisor(sup.dataset.supervisor); }
+});
 
 function mostrarToast(msg, error = false) {
   const t = document.createElement('div');
@@ -661,18 +694,24 @@ function renderizarRanking() {
   }
 
   // 5. Generar HTML interno
+  const checklistPorTecnico = analizarChecklistPorTecnico();
   function generarHtml(tecnicos, type) {
     if (tecnicos.length === 0) return `<div style="color:var(--gris-300);font-size:0.9rem;font-style:italic;">Sin datos suficientes</div>`;
     const color = type === 'top' ? 'var(--verde)' : 'var(--rojo)';
     const bg = type === 'top' ? 'var(--verde-bg)' : 'var(--rojo-bg)';
     return tecnicos.map((t, idx) => {
+      const fallas = checklistPorTecnico[t.tecnico] || [];
+      const fallaTag = (type === 'bottom' && fallas.length)
+        ? `<span class="falla-tag">Falla principal: ${escHtml(fallas[0].label)}</span>`
+        : '';
       return `
         <div class="ranking-fila" style="background:${bg};">
           <div class="persona">
             <div class="puesto" style="color:${color};">#${idx + 1}</div>
             <div class="info">
-              <span class="tecnico">${escHtml(t.tecnico)}</span>
-              <span class="supervisor">${escHtml(t.auditor)}</span>
+              <span class="tecnico tecnico-link" data-tecnico="${escHtml(t.tecnico)}">${escHtml(t.tecnico)}</span>
+              <span class="supervisor supervisor-link" data-supervisor="${escHtml(t.auditor)}">${escHtml(t.auditor)}</span>
+              ${fallaTag}
             </div>
           </div>
           <div class="medida">
@@ -703,6 +742,31 @@ const CHECKLIST_ITEMS = [
   { key: 'dropSoportes',  label: 'No instala drop con soportes',                      malo: 'NO' },
   { key: 'reutilizaOtra', label: 'Reutiliza instalación de otra compañía',            malo: 'SI' },
 ];
+
+// Para cada técnico (sobre datosFiltrados), calcula qué ítems del checklist
+// incumple y cuántas veces, ordenado de más a menos frecuente.
+// Se usa para la "falla principal" (Bottom 3) y la reincidencia en la tabla.
+function analizarChecklistPorTecnico() {
+  const porTecnico = {};
+  datosFiltrados.forEach(d => {
+    if (!d.tecnico) return;
+    if (!porTecnico[d.tecnico]) porTecnico[d.tecnico] = [];
+    porTecnico[d.tecnico].push(d);
+  });
+
+  const resultado = {};
+  Object.entries(porTecnico).forEach(([tecnico, registros]) => {
+    const items = CHECKLIST_ITEMS.map(item => {
+      const count = registros.filter(d =>
+        d[item.key] && d[item.key].trim() !== '' &&
+        d[item.key].trim().toUpperCase().startsWith(item.malo)
+      ).length;
+      return { label: item.label, count };
+    }).filter(i => i.count > 0).sort((a, b) => b.count - a.count);
+    if (items.length) resultado[tecnico] = items;
+  });
+  return resultado;
+}
 
 function renderizarHallazgos() {
   const cont = document.getElementById('hallazgos-list');

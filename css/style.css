@@ -476,6 +476,37 @@ body {
 .ranking-fila .medida { display: flex; flex-direction: column; align-items: flex-end; }
 .ranking-fila .medida .nota { font-weight: 700; font-size: var(--fs-md); }
 .ranking-fila .medida .cuenta { font-size: 0.7rem; color: var(--gris-300); }
+.ranking-fila .falla-tag {
+  font-size: 0.7rem;
+  color: var(--rojo);
+  font-weight: 600;
+  margin-top: 2px;
+}
+
+/* Filtro rápido: nombres clickeables de técnico/supervisor */
+.tecnico-link, .supervisor-link {
+  cursor: pointer;
+  border-bottom: 1px dashed transparent;
+  transition: var(--transicion);
+}
+.tecnico-link:hover, .supervisor-link:hover {
+  color: var(--celeste-700);
+  border-bottom-color: var(--celeste-400);
+}
+
+/* Badge de reincidencia en la tabla */
+.badge-reincidente {
+  display: inline-flex;
+  align-items: center;
+  font-size: 0.65rem;
+  font-weight: 700;
+  color: var(--ambar);
+  background: var(--ambar-bg);
+  padding: 2px 7px;
+  border-radius: var(--radio-pill);
+  white-space: nowrap;
+  cursor: help;
+}
 
 /* ============================================================
    TABLA DE DATOS
