@@ -154,7 +154,12 @@ function mapearColumnas(filas) {
       roseta:        String(f['Roseta Óptica en norma y atornillada ']|| ''),
       limpio:        String(f['Deja Área de Trabajo Limpio ']        || ''),
       capacitacion:  String(f['Capacitación  al Cliente']            || ''),
-      
+      funcion:       String(f['Técnico cumple correctamente con su función?  '] || ''),
+      alcohol:       String(f['Utiliza Alcohol isopropilico ']       || ''),
+      oneclick:      String(f['Utiliza OneClick para realizar limpieza a conectores '] || ''),
+      dropSoportes:  String(f['Instala drop con soportes']           || ''),
+      reutilizaOtra: String(f['Reutiliza Instalación de otra compañía '] || ''),
+
       // Columnas AC, AD, AE
       mesaTrabajo:   String(f['Se llevó a cabo la mesa de trabajo.'] || ''),
       cierreProceso: String(f['Se cerró el proceso con el técnico?'] || ''),
@@ -684,11 +689,19 @@ function renderizarRanking() {
 }
 
 // ─── TOP HALLAZGOS (CHECKLIST) ─────────────────────────────────
+// "malo" indica qué valor cuenta como incumplimiento para cada campo.
+// La mayoría es 'NO' (no cumple), pero algunos campos tienen la polaridad
+// invertida (ej. reutilizar instalación de otra compañía es lo indeseado).
 const CHECKLIST_ITEMS = [
-  { key: 'pasamuros',    label: 'No instala pasamuros' },
-  { key: 'roseta',       label: 'Roseta óptica fuera de norma' },
-  { key: 'limpio',       label: 'No deja área de trabajo limpia' },
-  { key: 'capacitacion', label: 'No capacita al cliente' },
+  { key: 'pasamuros',     label: 'No instala pasamuros',                              malo: 'NO' },
+  { key: 'roseta',        label: 'Roseta óptica fuera de norma',                      malo: 'NO' },
+  { key: 'limpio',        label: 'No deja área de trabajo limpia',                    malo: 'NO' },
+  { key: 'capacitacion',  label: 'No capacita al cliente',                            malo: 'NO' },
+  { key: 'funcion',       label: 'No cumple correctamente con su función',            malo: 'NO' },
+  { key: 'alcohol',       label: 'No utiliza alcohol isopropílico',                   malo: 'NO' },
+  { key: 'oneclick',      label: 'No utiliza OneClick en limpieza de conectores',     malo: 'NO' },
+  { key: 'dropSoportes',  label: 'No instala drop con soportes',                      malo: 'NO' },
+  { key: 'reutilizaOtra', label: 'Reutiliza instalación de otra compañía',            malo: 'SI' },
 ];
 
 function renderizarHallazgos() {
@@ -697,7 +710,7 @@ function renderizarHallazgos() {
 
   const resultados = CHECKLIST_ITEMS.map(item => {
     const respuestas = datosFiltrados.filter(d => d[item.key] && d[item.key].trim() !== '');
-    const noCumple = respuestas.filter(d => d[item.key].trim().toUpperCase() === 'NO').length;
+    const noCumple = respuestas.filter(d => d[item.key].trim().toUpperCase().startsWith(item.malo)).length;
     const pct = respuestas.length ? Math.round((noCumple / respuestas.length) * 100) : 0;
     return { ...item, noCumple, total: respuestas.length, pct };
   }).filter(r => r.total > 0);
