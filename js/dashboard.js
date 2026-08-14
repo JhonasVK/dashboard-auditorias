@@ -125,6 +125,9 @@ function mapearColumnas(filas) {
     // ── Puntuación (columna B) ──
     const puntuacion = parseFloat(f['Puntuación'] || 0);
 
+    // ── Nota de Estética del cableado ──
+    const estetica = parseFloat(f['Nota de Estética del cableado '] || 0);
+
     // ── Estado de la auditoría ──
     const estadoRaw = String(f['Estado Auditoria '] || f['Técnico cumple correctamente con su función?  '] || '').trim();
     let estado = 'Pendiente';
@@ -147,6 +150,7 @@ function mapearColumnas(filas) {
       cumplimiento,
       nota,
       puntuacion,
+      estetica,
       estado,
       observaciones: String(f['Observaciones (detallar observaciones)'] || f['Observaciones '] || ''),
       // Campos adicionales de checklist
@@ -158,6 +162,8 @@ function mapearColumnas(filas) {
       alcohol:       String(f['Utiliza Alcohol isopropilico ']       || ''),
       oneclick:      String(f['Utiliza OneClick para realizar limpieza a conectores '] || ''),
       dropSoportes:  String(f['Instala drop con soportes']           || ''),
+      dropNorma:     String(f['Drop se encuentra encuentra dentro de norma de instalaciones '] || ''),
+      reutiliza:     String(f['Reutiliza Instalación ']               || ''),
       reutilizaOtra: String(f['Reutiliza Instalación de otra compañía '] || ''),
 
       // Columnas AC, AD, AE
@@ -271,11 +277,13 @@ function renderizarKPIs() {
   const cierres    = datosFiltrados.filter(d => d.cierreProceso && d.cierreProceso.toLowerCase().includes('si')).length;
   const notaProm   = total ? (datosFiltrados.reduce((s,d) => s + (d.nota||0), 0) / total) : 0;
   const puntuacionProm = total ? (datosFiltrados.reduce((s,d) => s + (d.puntuacion||0), 0) / total) : 0;
+  const esteticaProm   = total ? (datosFiltrados.reduce((s,d) => s + (d.estetica||0), 0) / total) : 0;
 
   setKPI('kpi-total',       total,                        'auditorías registradas');
   setKPI('kpi-cumplimiento', notaProm.toFixed(1) + ' / 10', 'nota promedio técnicos');
   setKPI('kpi-cierre',      cierres,                       'cierres con técnico');
   setKPI('kpi-puntuacion',  puntuacionProm.toFixed(1),      'normas y procedimientos');
+  setKPI('kpi-estetica',    esteticaProm.toFixed(1),        'estética del cableado');
 
   renderizarTendenciaMensual(total, notaProm);
 
@@ -740,6 +748,8 @@ const CHECKLIST_ITEMS = [
   { key: 'alcohol',       label: 'No utiliza alcohol isopropílico',                   malo: 'NO' },
   { key: 'oneclick',      label: 'No utiliza OneClick en limpieza de conectores',     malo: 'NO' },
   { key: 'dropSoportes',  label: 'No instala drop con soportes',                      malo: 'NO' },
+  { key: 'dropNorma',     label: 'Drop fuera de norma de instalaciones',              malo: 'NO' },
+  { key: 'reutiliza',     label: 'Reutiliza instalación',                             malo: 'SI' },
   { key: 'reutilizaOtra', label: 'Reutiliza instalación de otra compañía',            malo: 'SI' },
 ];
 
