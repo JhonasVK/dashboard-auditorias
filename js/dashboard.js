@@ -547,7 +547,7 @@ function renderizarTabla() {
 
   if (datosFiltrados.length === 0) {
     tbody.innerHTML = `
-      <tr><td colspan="7">
+      <tr><td colspan="16">
         <div class="empty-state">
           <svg class="empty-icon"><use href="#icon-clipboard"/></svg>
           <h3>Sin resultados</h3>
@@ -599,6 +599,12 @@ function renderizarTabla() {
           <span class="cumplimiento-pct">${nota} / 10</span>
         </div>
       </td>
+      <td style="text-align:center">${celdaChecklist(d.funcion, 'NO')}</td>
+      <td style="text-align:center">${celdaChecklist(d.capacitacion, 'NO')}</td>
+      <td style="text-align:center">${celdaChecklist(d.alcohol, 'NO')}</td>
+      <td style="text-align:center">${celdaChecklist(d.oneclick, 'NO')}</td>
+      <td style="text-align:center">${celdaChecklist(d.dropSoportes, 'NO')}</td>
+      <td style="text-align:center">${celdaChecklist(d.reutilizaOtra, 'SI')}</td>
       <td style="font-size:0.75rem;color:#5A6678;max-width:200px">${escHtml(d.observaciones || '—')}</td>
       <td style="font-size:0.75rem;text-align:center">${escHtml(d.mesaTrabajo || '—')}</td>
       <td style="font-size:0.75rem;text-align:center">${escHtml(d.cierreProceso || '—')}</td>
@@ -629,6 +635,15 @@ function escHtml(str) {
   return String(str)
     .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
     .replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+}
+
+// Celda de checklist en la tabla: colorea según si el valor es el "malo" para ese campo.
+function celdaChecklist(valor, malo) {
+  const v = (valor || '').trim();
+  if (!v) return `<span style="color:var(--gris-300);font-size:0.75rem;">—</span>`;
+  const esMalo = v.toUpperCase().startsWith(malo);
+  const color = esMalo ? 'var(--rojo)' : 'var(--verde)';
+  return `<span style="color:${color};font-weight:600;font-size:0.75rem;">${escHtml(v)}</span>`;
 }
 
 // ─── FILTRO RÁPIDO (clic en un técnico o supervisor) ───────────
@@ -824,6 +839,12 @@ function exportarExcel() {
     'Supervisor': d.auditor,
     'Dirección': d.direccion,
     'Nota': d.nota,
+    'Cumple Función': d.funcion,
+    'Capacitación': d.capacitacion,
+    'Alcohol Isopropílico': d.alcohol,
+    'OneClick': d.oneclick,
+    'Drop c/ Soportes': d.dropSoportes,
+    'Reutiliza Otra Cía.': d.reutilizaOtra,
     'Observaciones': d.observaciones,
     'Mesa de Trabajo': d.mesaTrabajo,
     'Cierre Proceso': d.cierreProceso,
