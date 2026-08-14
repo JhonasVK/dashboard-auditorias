@@ -122,6 +122,9 @@ function mapearColumnas(filas) {
     const nota = parseFloat(f['Con que nota se evalúa al técnico '] || 0);
     const cumplimiento = nota > 0 ? Math.round((nota / 10) * 100) : 0;
 
+    // ── Puntuación (columna B) ──
+    const puntuacion = parseFloat(f['Puntuación'] || 0);
+
     // ── Estado de la auditoría ──
     const estadoRaw = String(f['Estado Auditoria '] || f['Técnico cumple correctamente con su función?  '] || '').trim();
     let estado = 'Pendiente';
@@ -143,6 +146,7 @@ function mapearColumnas(filas) {
       direccion:     String(f['DIRECCIÓN (Calle - Numero) ']         || ''),
       cumplimiento,
       nota,
+      puntuacion,
       estado,
       observaciones: String(f['Observaciones (detallar observaciones)'] || f['Observaciones '] || ''),
       // Campos adicionales de checklist
@@ -261,10 +265,12 @@ function renderizarKPIs() {
   const total      = datosFiltrados.length;
   const cierres    = datosFiltrados.filter(d => d.cierreProceso && d.cierreProceso.toLowerCase().includes('si')).length;
   const notaProm   = total ? (datosFiltrados.reduce((s,d) => s + (d.nota||0), 0) / total) : 0;
+  const puntuacionProm = total ? (datosFiltrados.reduce((s,d) => s + (d.puntuacion||0), 0) / total) : 0;
 
   setKPI('kpi-total',       total,                        'auditorías registradas');
   setKPI('kpi-cumplimiento', notaProm.toFixed(1) + ' / 10', 'nota promedio técnicos');
   setKPI('kpi-cierre',      cierres,                       'cierres con técnico');
+  setKPI('kpi-puntuacion',  puntuacionProm.toFixed(1),      'promedio puntuación');
 
   renderizarTendenciaMensual(total, notaProm);
 

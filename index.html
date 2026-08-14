@@ -105,6 +105,9 @@
         <rect x="3" y="4" width="18" height="12" rx="3" fill="none" stroke="currentColor" stroke-width="2"/>
         <path d="M8 16l-1.5 4 5-4" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>
       </symbol>
+      <symbol id="icon-star" viewBox="0 0 24 24">
+        <path d="M12 3l2.6 5.6 6.1.6-4.6 4.1 1.3 6-5.4-3.1-5.4 3.1 1.3-6-4.6-4.1 6.1-.6z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/>
+      </symbol>
     </defs>
   </svg>
 
@@ -188,6 +191,15 @@
         <div class="kpi-value">—</div>
         <div class="kpi-sub">promedio</div>
         <div class="kpi-trend" id="kpi-cumplimiento-trend"></div>
+      </div>
+
+      <div class="kpi-card" id="kpi-puntuacion">
+        <div class="kpi-header">
+          <div class="kpi-icon"><svg class="icon"><use href="#icon-star"/></svg></div>
+          <span class="kpi-label">Puntuación<br>Promedio</span>
+        </div>
+        <div class="kpi-value">—</div>
+        <div class="kpi-sub">promedio puntuación</div>
       </div>
 
       <div class="kpi-card verde" id="kpi-cierre">
@@ -346,7 +358,7 @@
   </footer>
 
   <!-- Script principal -->
-  <script src="js/dashboard.js?v=8"></script>
+  <script src="js/dashboard.js?v=9"></script>
 
 </body>
 </html>
