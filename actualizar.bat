@@ -31,6 +31,11 @@ if errorlevel 1 (
     exit /b 1
 )
 
+:: -- Asegurar que la cuenta activa de GitHub sea JhonasVK ------
+:: (otros scripts, como el de Reincidencias, dejan activada otra
+:: cuenta al terminar; esto evita el error 403 al subir)
+gh auth switch --hostname github.com --user JhonasVK >nul 2>nul
+
 :: -- Git: agregar, confirmar y subir --------------------------
 echo [1/3] Registrando cambios...
 git -C "%CARPETA%" add data/BBDD_Supervisores.xlsx
